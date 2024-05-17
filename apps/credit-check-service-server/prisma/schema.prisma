@@ -1,0 +1,53 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model CreditCheck {
+  checkDate   DateTime?
+  createdAt   DateTime  @default(now())
+  creditLimit Float?
+  creditScore Int?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  customerId  String?
+  id          String    @id @default(cuid())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Customer {
+  authorizations Authorization[]
+  createdAt      DateTime        @default(now())
+  creditChecks   CreditCheck[]
+  dateOfBirth    DateTime?
+  email          String?
+  firstName      String?
+  id             String          @id @default(cuid())
+  lastName       String?
+  updatedAt      DateTime        @updatedAt
+}
+
+model Transaction {
+  authCode          String?
+  authorization     Authorization? @relation(fields: [authorizationId], references: [id])
+  authorizationId   String?
+  createdAt         DateTime       @default(now())
+  id                String         @id @default(cuid())
+  transactionAmount Float?
+  transactionDate   DateTime?
+  updatedAt         DateTime       @updatedAt
+}
+
+model Authorization {
+  authCode     String?
+  authDate     DateTime?
+  createdAt    DateTime      @default(now())
+  customer     Customer?     @relation(fields: [customerId], references: [id])
+  customerId   String?
+  id           String        @id @default(cuid())
+  transactions Transaction[]
+  updatedAt    DateTime      @updatedAt
+}
